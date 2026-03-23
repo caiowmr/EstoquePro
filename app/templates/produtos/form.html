@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4">
+    <h1 class="h2 fw-bold">{{ 'Editar Produto' if produto else 'Novo Produto' }}</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-5">
+                <form method="POST">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Nome do Produto</label>
+                        <input type="text" name="nome" class="form-control form-control-lg" 
+                               value="{{ produto.nome if produto else '' }}" placeholder="Ex: Rolamento XYZ" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Categoria</label>
+                        <select name="categoria_id" class="form-select form-control-lg" required>
+                            <option value="">Selecione uma categoria...</option>
+                            {% for c in categorias %}
+                            <option value="{{ c.id }}" {{ 'selected' if produto and produto.categoria_id == c.id else '' }}>
+                                {{ c.nome }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Código / SKU</label>
+                        <input type="text" name="codigo" class="form-control form-control-lg" 
+                               value="{{ produto.codigo if produto else '' }}" placeholder="Ex: ROL-001" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Estoque Mínimo</label>
+                        <input type="number" name="estoque_minimo" class="form-control form-control-lg" 
+                               value="{{ produto.estoque_minimo if produto else '0' }}" required>
+                    </div>
+                    <div class="d-grid gap-3 pt-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            {{ 'Salvar Alterações' if produto else 'Cadastrar Produto' }}
+                        </button>
+                        <a href="{{ url_for('produtos.listar') }}" class="btn btn-light btn-lg">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="h2 fw-bold mb-0">Funcionários</h1>
+            <p class="text-muted">Gerencie os colaboradores que realizam movimentações no estoque.</p>
+        </div>
+        <a href="{{ url_for('funcionarios.novo') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
+            <i class="bi bi-person-plus me-2"></i> Novo Funcionário
+        </a>
+    </div>
+
+    <div class="table-container animate-up">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-uppercase">Nome</th>
+                        <th class="text-uppercase">Departamento</th>
+                        <th class="text-uppercase">Movimentações Realizadas</th>
+                        <th class="text-uppercase text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in funcionarios %}
+                    <tr class="animate-up" style="animation-delay: {{ loop.index0 * 0.05 }}s">
+                        <td class="fw-bold">{{ f.nome }}</td>
+                        <td>
+                            <span class="badge bg-pastel-blue text-primary">{{ f.departamento or 'Não definido' }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark">{{ f.movimentacoes.count() }} registros</span>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ url_for('funcionarios.editar', id=f.id) }}" class="btn btn-icon btn-light rounded-circle" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form action="{{ url_for('funcionarios.remover', id=f.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este funcionário?');">
+                                    <button type="submit" class="btn btn-icon btn-light rounded-circle text-danger" title="Remover">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

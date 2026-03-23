@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center animate-up">
+    <div class="col-lg-6">
+        <div class="mb-5 text-center">
+            <h1 class="display-5 fw-bold mb-1">Registrar Movimentação</h1>
+            <p class="text-muted">Atualize o estoque de hardware com entradas ou saídas.</p>
+        </div>
+        
+        <div class="bento-item">
+            <form method="POST">
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-muted">PRODUTO</label>
+                    <select name="produto_id" class="form-select form-select-lg" required>
+                        <option value="">Selecione um hardware...</option>
+                        {% for p in produtos %}
+                        <option value="{{ p.id }}">{{ p.nome }} (Estoque: {{ p.estoque_atual }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-muted">TIPO DE MOVIMENTAÇÃO</label>
+                    <div class="d-flex gap-4 p-3 bg-light rounded-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="tipo" value="ENTRADA" id="tipoEntrada" {{ 'checked' if tipo_predefinido == 'ENTRADA' else '' }}>
+                            <label class="form-check-label fw-bold text-success" for="tipoEntrada">Entrada</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="tipo" value="SAIDA" id="tipoSaida" {{ 'checked' if tipo_predefinido == 'SAIDA' else '' }}>
+                            <label class="form-check-label fw-bold text-danger" for="tipoSaida">Saída</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="tipo" value="AJUSTE" id="tipoAjuste" {{ 'checked' if tipo_predefinido == 'AJUSTE' else '' }}>
+                            <label class="form-check-label fw-bold text-warning" for="tipoAjuste">Ajuste</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">QUANTIDADE</label>
+                        <input type="number" name="quantidade" class="form-control form-control-lg" min="1" required placeholder="0">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">TÉCNICO RESPONSÁVEL</label>
+                        <select name="funcionario_id" class="form-select form-select-lg">
+                            <option value="">Nenhum</option>
+                            {% for f in funcionarios %}
+                            <option value="{{ f.id }}">{{ f.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-5">
+                    <label class="form-label small fw-bold text-muted">OBSERVAÇÃO (OPCIONAL)</label>
+                    <textarea name="observacao" class="form-control" rows="2" placeholder="Motivo da movimentação..."></textarea>
+                </div>
+
+                <div class="d-grid gap-3">
+                    <button type="submit" class="btn btn-primary btn-lg py-3">Confirmar Registro</button>
+                    <a href="{{ url_for('movimentacoes.listar_entradas' if tipo_predefinido == 'ENTRADA' else 'movimentacoes.listar_saidas') }}" class="btn btn-light btn-lg">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

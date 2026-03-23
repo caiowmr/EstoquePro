@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="mb-5">
+        <h1 class="display-5 fw-bold mb-1">Relatórios e Exportações</h1>
+        <p class="text-muted">Extraia dados e gere documentos formatados do seu estoque.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="bento-item h-100 d-flex flex-column justify-content-between p-5">
+                <div>
+                    <div class="icon-box bg-pastel-green text-success mb-4">
+                        <i class="bi bi-file-earmark-excel fs-3"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Planilha de Movimentações</h3>
+                    <p class="text-muted mb-5">Exportação completa de todo o histórico de entradas e saídas em formato Excel (.xlsx) para análises avançadas.</p>
+                </div>
+                <a href="{{ url_for('relatorios.exportar_excel') }}" class="btn btn-success btn-lg py-3 rounded-pill">
+                    <i class="bi bi-download me-2"></i> Baixar Excel
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="bento-item h-100 d-flex flex-column justify-content-between p-5">
+                <div>
+                    <div class="icon-box bg-pastel-red text-danger mb-4">
+                        <i class="bi bi-file-earmark-pdf fs-3"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Relatório Executivo PDF</h3>
+                    <p class="text-muted mb-4">Gere um documento formatado e profissional contendo o resumo das atividades recentes e status atual do estoque.</p>
+                    
+                    <form action="{{ url_for('relatorios.exportar_pdf') }}" method="GET" class="mb-4">
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted">PERÍODO DO GRÁFICO</label>
+                            <select name="periodo" class="form-select mb-3">
+                                <option value="7">Últimos 7 dias</option>
+                                <option value="15">Últimos 15 dias</option>
+                                <option value="30" selected>Últimos 30 dias</option>
+                                <option value="90">Últimos 90 dias</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted">OPÇÕES DO RELATÓRIO</label>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="grafico_fluxo" value="1" id="checkGraficoFluxo" checked>
+                                <label class="form-check-label" for="checkGraficoFluxo">Gráfico de Fluxo (Entradas/Saídas)</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="grafico_mais_usados" value="1" id="checkGraficoMaisUsados" checked>
+                                <label class="form-check-label" for="checkGraficoMaisUsados">Gráfico: Top 5 Peças Mais Usadas</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="grafico_menos_usados" value="1" id="checkGraficoMenosUsados" checked>
+                                <label class="form-check-label" for="checkGraficoMenosUsados">Gráfico: Top 5 Peças Menos Usadas</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="grafico_tecnicos" value="1" id="checkGraficoTecnicos" checked>
+                                <label class="form-check-label" for="checkGraficoTecnicos">Gráfico: Consumo por Técnico</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="grafico_estoque" value="1" id="checkGraficoEstoque" checked>
+                                <label class="form-check-label" for="checkGraficoEstoque">Gráfico: Distribuição de Estoque</label>
+                            </div>
+                            <hr class="my-3">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="incluir_entradas" value="1" id="checkEntradas" checked>
+                                <label class="form-check-label" for="checkEntradas">Incluir Entradas na Tabela</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="incluir_saidas" value="1" id="checkSaidas" checked>
+                                <label class="form-check-label" for="checkSaidas">Incluir Saídas na Tabela</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-danger btn-lg w-100 py-3 rounded-pill">
+                            <i class="bi bi-file-earmark-pdf me-2"></i> Gerar PDF
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

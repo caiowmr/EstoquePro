@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Helvetica, Arial, sans-serif; }
+        h1 { color: #0d6efd; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 10px; }
+        th { background-color: #f2f2f2; }
+        .header { margin-bottom: 30px; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 8px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Relatório de Movimentação de Estoque</h1>
+        <p style="text-align: center;">Gerado em: {{ now.strftime('%d/%m/%Y %H:%M') if now else '' }}</p>
+    </div>
+
+    {% if charts %}
+        {% if charts.fluxo %}
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="data:image/png;base64,{{ charts.fluxo }}" style="width: 100%; max-width: 800px;">
+        </div>
+        {% endif %}
+        
+        <div style="margin-bottom: 20px;">
+            {% if charts.mais_usados %}
+            <div style="text-align: center; margin-bottom: 10px;">
+                <img src="data:image/png;base64,{{ charts.mais_usados }}" style="width: 100%; max-width: 800px;">
+            </div>
+            {% endif %}
+            
+            {% if charts.menos_usados %}
+            <div style="text-align: center; margin-bottom: 10px;">
+                <img src="data:image/png;base64,{{ charts.menos_usados }}" style="width: 100%; max-width: 800px;">
+            </div>
+            {% endif %}
+            
+            {% if charts.tecnicos %}
+            <div style="text-align: center; margin-bottom: 10px;">
+                <img src="data:image/png;base64,{{ charts.tecnicos }}" style="width: 100%; max-width: 800px;">
+            </div>
+            {% endif %}
+
+            {% if charts.estoque %}
+            <div style="text-align: center; margin-bottom: 10px;">
+                <img src="data:image/png;base64,{{ charts.estoque }}" style="width: 100%; max-width: 800px;">
+            </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Produto</th>
+                <th>Tipo</th>
+                <th>Qtd</th>
+                <th>Funcionário</th>
+                <th>Obs</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in movimentacoes %}
+            <tr>
+                <td>{{ m.data.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ m.produto.nome }}</td>
+                <td>{{ m.tipo }}</td>
+                <td>{{ m.quantidade }}</td>
+                <td>{{ m.funcionario.nome if m.funcionario else '-' }}</td>
+                <td>{{ m.observacao or '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        EstoquePro - Sistema de Controle de Estoque
+    </div>
+</body>
+</html>

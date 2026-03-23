@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="h2 fw-bold mb-0">{{ titulo }}</h1>
+            <p class="text-muted">Histórico de {{ 'entradas' if tipo_filtro == 'ENTRADA' else 'saídas' }} de hardware no estoque.</p>
+        </div>
+        <a href="{{ url_for('movimentacoes.nova', tipo=tipo_filtro) }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
+            <i class="bi bi-plus-lg me-2"></i> Registrar {{ 'Entrada' if tipo_filtro == 'ENTRADA' else 'Saída' }}
+        </a>
+    </div>
+
+    <div class="table-container animate-up">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-uppercase">Data</th>
+                        <th class="text-uppercase">Produto</th>
+                        <th class="text-uppercase">Tipo</th>
+                        <th class="text-uppercase">Quantidade</th>
+                        <th class="text-uppercase">Funcionário</th>
+                        <th class="text-uppercase">Observação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in movimentacoes %}
+                    <tr class="animate-up" style="animation-delay: {{ loop.index0 * 0.03 }}s">
+                        <td class="text-muted small">{{ m.data.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td class="fw-bold">{{ m.produto.nome }}</td>
+                        <td>
+                            {% if m.tipo == 'ENTRADA' %}
+                                <span class="badge rounded-pill bg-pastel-green text-success px-3">ENTRADA</span>
+                            {% elif m.tipo == 'SAIDA' %}
+                                <span class="badge rounded-pill bg-pastel-red text-danger px-3">SAÍDA</span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-pastel-blue text-warning px-3">AJUSTE</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="fs-5 fw-bold">{{ m.quantidade }}</span></td>
+                        <td>
+                            {% if m.funcionario %}
+                                <span class="badge bg-light text-dark">{{ m.funcionario.nome }}</span>
+                            {% else %}
+                                <span class="text-muted small">-</span>
+                            {% endif %}
+                        </td>
+                        <td><small class="text-muted">{{ m.observacao or '-' }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

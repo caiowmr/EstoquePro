@@ -1,0 +1,435 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-4">
+        <div>
+            <h1 class="h2 fw-bold mb-0">Dashboard</h1>
+            <p class="text-muted">Visão geral do seu estoque e movimentações.</p>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3 flex-wrap bg-white p-2 rounded-4 shadow-sm border">
+            <div class="btn-group btn-group-sm p-1 bg-light rounded-3">
+                <a href="{{ url_for('dashboard.index', periodo='semana') }}" class="btn {{ 'btn-white shadow-sm' if periodo == 'semana' and not start_date else 'btn-light border-0' }} px-3 rounded-2">Essa Semana</a>
+                <a href="{{ url_for('dashboard.index', periodo='mes') }}" class="btn {{ 'btn-white shadow-sm' if periodo == 'mes' and not start_date else 'btn-light border-0' }} px-3 rounded-2">Esse Mês</a>
+            </div>
+            
+            <div class="vr mx-1 d-none d-md-block" style="height: 30px;"></div>
+
+            <form action="{{ url_for('dashboard.index') }}" method="GET" class="d-flex align-items-center gap-2">
+                <input type="hidden" name="periodo" value="custom">
+                <div class="d-flex align-items-center gap-2 bg-light p-1 px-2 rounded-3 border">
+                    <input type="date" name="start_date" value="{{ start_date }}" class="form-control form-control-sm border-0 bg-transparent p-0" style="width: 110px; font-size: 0.8rem;">
+                    <span class="text-muted small">→</span>
+                    <input type="date" name="end_date" value="{{ end_date }}" class="form-control form-control-sm border-0 bg-transparent p-0" style="width: 110px; font-size: 0.8rem;">
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm rounded-3 px-3">
+                    Filtrar
+                </button>
+            </form>
+            <div class="vr mx-1 d-none d-md-block" style="height: 30px;"></div>
+            <button id="resetLayout" class="btn btn-outline-secondary btn-sm rounded-3 px-3">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Resetar Layout
+            </button>
+        </div>
+    </div>
+
+    <!-- GridStack Dashboard -->
+    <div class="grid-stack">
+        <!-- Stats -->
+        <div class="grid-stack-item" gs-id="stat-total" gs-w="4" gs-h="2" gs-x="0" gs-y="0">
+            <div class="grid-stack-item-content stat-card animate-up" style="animation-delay: 0.1s;">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="stat-icon bg-pastel-blue">
+                        <i class="bi bi-cpu text-primary fs-4"></i>
+                    </div>
+                    <span class="badge bg-light text-muted">Total</span>
+                </div>
+                <div>
+                    <h6 class="text-uppercase small fw-bold text-muted mb-1">Hardware em Catálogo</h6>
+                    <h2 class="display-6 fw-bold mb-0">{{ resumo.total_produtos }}</h2>
+                </div>
+                <div class="mt-3 progress" style="height: 6px;">
+                    <div class="progress-bar bg-primary" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-stack-item" gs-id="stat-periodo" gs-w="4" gs-h="2" gs-x="4" gs-y="0">
+            <div class="grid-stack-item-content stat-card animate-up" style="animation-delay: 0.2s;">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="stat-icon bg-pastel-green">
+                        <i class="bi bi-arrow-left-right text-success fs-4"></i>
+                    </div>
+                    <span class="badge bg-light text-muted">No Período</span>
+                </div>
+                <div>
+                    <h6 class="text-uppercase small fw-bold text-muted mb-1">Movimentações</h6>
+                    <h2 class="display-6 fw-bold mb-0">{{ resumo.movimentacoes_periodo }}</h2>
+                </div>
+                <div class="mt-3 progress" style="height: 6px;">
+                    <div class="progress-bar bg-success" style="width: 75%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-stack-item" gs-id="stat-critico" gs-w="4" gs-h="2" gs-x="8" gs-y="0">
+            <div class="grid-stack-item-content stat-card animate-up" style="animation-delay: 0.3s;">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="stat-icon bg-pastel-red">
+                        <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
+                    </div>
+                    <span class="badge bg-light text-danger">Urgente</span>
+                </div>
+                <div>
+                    <h6 class="text-uppercase small fw-bold text-muted mb-1">Estoque Crítico</h6>
+                    <h2 class="display-6 fw-bold mb-0">{{ resumo.baixo_estoque }}</h2>
+                </div>
+                <div class="mt-3 progress" style="height: 6px;">
+                    <div class="progress-bar bg-danger" style="width: {{ (resumo.baixo_estoque / resumo.total_produtos * 100)|round if resumo.total_produtos > 0 else 0 }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Charts -->
+        <div class="grid-stack-item" gs-id="chart-comparativo" gs-w="8" gs-h="4" gs-x="0" gs-y="2">
+            <div class="grid-stack-item-content animate-up" style="animation-delay: 0.4s;">
+                <h5 class="fw-bold">Fluxo de Entradas e Saídas</h5>
+                <div class="chart-container">
+                    <canvas id="chartComparativo"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-stack-item" gs-id="chart-dist" gs-w="4" gs-h="4" gs-x="8" gs-y="2">
+            <div class="grid-stack-item-content animate-up" style="animation-delay: 0.7s;">
+                <h5 class="fw-bold">Distribuição de Estoque</h5>
+                <div class="chart-container">
+                    <canvas id="chartDistEstoque"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-stack-item" gs-id="chart-entradas" gs-w="4" gs-h="3" gs-x="0" gs-y="6">
+            <div class="grid-stack-item-content animate-up" style="animation-delay: 0.5s;">
+                <h5 class="fw-bold">Fluxo de Entradas</h5>
+                <div class="chart-container">
+                    <canvas id="chartEntradasOnly"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-stack-item" gs-id="chart-saidas" gs-w="4" gs-h="3" gs-x="4" gs-y="6">
+            <div class="grid-stack-item-content animate-up" style="animation-delay: 0.6s;">
+                <h5 class="fw-bold">Fluxo de Saídas</h5>
+                <div class="chart-container">
+                    <canvas id="chartSaidasOnly"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-stack-item" gs-id="chart-tecnicos" gs-w="4" gs-h="3" gs-x="8" gs-y="6">
+            <div class="grid-stack-item-content animate-up" style="animation-delay: 0.9s;">
+                <h5 class="fw-bold">Consumo por Técnico</h5>
+                <div class="chart-container">
+                    <canvas id="chartTopFuncionarios"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-stack-item" gs-id="chart-mais-usadas" gs-w="6" gs-h="3" gs-x="0" gs-y="9">
+            <div class="grid-stack-item-content animate-up" style="animation-delay: 0.8s;">
+                <h5 class="fw-bold small text-muted text-uppercase">Mais Usadas</h5>
+                <div class="chart-container">
+                    <canvas id="chartMaisUsadas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-stack-item" gs-id="chart-menos-usadas" gs-w="6" gs-h="3" gs-x="6" gs-y="9">
+            <div class="grid-stack-item-content animate-up" style="animation-delay: 0.85s;">
+                <h5 class="fw-bold small text-muted text-uppercase">Menos Usadas</h5>
+                <div class="chart-container">
+                    <canvas id="chartMenosUsadas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize GridStack
+    const grid = GridStack.init({
+        cellHeight: 100,
+        margin: 12,
+        animate: true,
+        float: true,
+        resizable: { handles: 'se, sw' }
+    });
+
+    // Persistence Logic
+    const STORAGE_KEY = 'dashboard_layout';
+
+    function saveLayout() {
+        const layout = grid.save(false); // Save without content
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
+    }
+
+    function loadLayout() {
+        const savedLayout = localStorage.getItem(STORAGE_KEY);
+        if (savedLayout) {
+            try {
+                const layout = JSON.parse(savedLayout);
+                // Update existing elements instead of loading new ones to avoid duplication
+                layout.forEach(item => {
+                    const el = document.querySelector(`[gs-id="${item.id}"]`);
+                    if (el) {
+                        grid.update(el, { x: item.x, y: item.y, w: item.w, h: item.h });
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to load layout', e);
+            }
+        }
+    }
+
+    // Load saved layout on start
+    loadLayout();
+
+    // Save on any change
+    grid.on('change', saveLayout);
+    grid.on('dragstop', saveLayout);
+    grid.on('resizestop', saveLayout);
+
+    // Reset Layout
+    document.getElementById('resetLayout').addEventListener('click', () => {
+        if (confirm('Deseja realmente voltar o dashboard para a posição original?')) {
+            localStorage.removeItem(STORAGE_KEY);
+            window.location.reload();
+        }
+    });
+
+    const graficosData = {{ graficos|tojson }};
+    const charts = {};
+
+    // Configuração Global do Chart.js para Estilo Apple
+    Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "SF Pro Text"';
+    Chart.defaults.color = '#86868b';
+    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+    Chart.defaults.plugins.tooltip.titleColor = '#1d1d1f';
+    Chart.defaults.plugins.tooltip.bodyColor = '#1d1d1f';
+    Chart.defaults.plugins.tooltip.borderColor = 'rgba(0,0,0,0.1)';
+    Chart.defaults.plugins.tooltip.borderWidth = 1;
+    Chart.defaults.plugins.tooltip.padding = 12;
+    Chart.defaults.plugins.tooltip.cornerRadius = 12;
+
+    // Helper to create charts
+    function createChart(id, config) {
+        const ctx = document.getElementById(id);
+        if (ctx) {
+            charts[id] = new Chart(ctx, config);
+        }
+    }
+
+    // Gráfico de Linha Comparativo
+    createChart('chartComparativo', {
+        type: 'line',
+        data: {
+            labels: graficosData.comparativo_mov.labels,
+            datasets: [
+                {
+                    label: 'Saídas',
+                    data: graficosData.comparativo_mov.saidas,
+                    borderColor: '#ff3b30',
+                    backgroundColor: 'rgba(255, 59, 48, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#ff3b30',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                },
+                {
+                    label: 'Entradas',
+                    data: graficosData.comparativo_mov.entradas,
+                    borderColor: '#34c759',
+                    backgroundColor: 'rgba(52, 199, 89, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#34c759',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { position: 'top', align: 'end', labels: { boxWidth: 8, usePointStyle: true } } 
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: 'rgba(0,0,0,0.03)' },
+                    border: { display: false }
+                },
+                x: { 
+                    grid: { display: false },
+                    border: { display: false }
+                }
+            }
+        }
+    });
+
+    // Gráfico de Entradas Only
+    createChart('chartEntradasOnly', {
+        type: 'bar',
+        data: {
+            labels: graficosData.comparativo_mov.labels,
+            datasets: [{
+                label: 'Entradas',
+                data: graficosData.comparativo_mov.entradas,
+                backgroundColor: '#34c759',
+                borderRadius: 8,
+                barThickness: 'flex'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { display: false },
+                x: { grid: { display: false }, border: { display: false } }
+            }
+        }
+    });
+
+    // Gráfico de Saídas Only
+    createChart('chartSaidasOnly', {
+        type: 'bar',
+        data: {
+            labels: graficosData.comparativo_mov.labels,
+            datasets: [{
+                label: 'Saídas',
+                data: graficosData.comparativo_mov.saidas,
+                backgroundColor: '#ff3b30',
+                borderRadius: 8,
+                barThickness: 'flex'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { display: false },
+                x: { grid: { display: false }, border: { display: false } }
+            }
+        }
+    });
+
+    // Gráfico de Rosca
+    createChart('chartDistEstoque', {
+        type: 'doughnut',
+        data: {
+            labels: graficosData.dist_estoque.labels,
+            datasets: [{
+                data: graficosData.dist_estoque.data,
+                backgroundColor: ['#0071e3', '#34c759', '#ff9500', '#ff3b30', '#af52de'],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { position: 'bottom', labels: { boxWidth: 10, padding: 15, usePointStyle: true, font: { size: 11 } } } 
+            },
+            cutout: '70%'
+        }
+    });
+
+    // Gráfico de Barras - Peças Mais Usadas
+    createChart('chartMaisUsadas', {
+        type: 'bar',
+        data: {
+            labels: graficosData.mais_usadas.labels,
+            datasets: [{
+                label: 'Qtd Saída',
+                data: graficosData.mais_usadas.data,
+                backgroundColor: '#0071e3',
+                borderRadius: 10,
+                barThickness: 'flex'
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, border: { display: false } },
+                y: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 10 } } }
+            }
+        }
+    });
+
+    // Gráfico de Barras - Peças Menos Usadas
+    createChart('chartMenosUsadas', {
+        type: 'bar',
+        data: {
+            labels: graficosData.menos_usadas.labels,
+            datasets: [{
+                label: 'Qtd Saída',
+                data: graficosData.menos_usadas.data,
+                backgroundColor: '#ff9500',
+                borderRadius: 10,
+                barThickness: 'flex'
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, border: { display: false } },
+                y: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 10 } } }
+            }
+        }
+    });
+
+    // Gráfico de Barras - Top Funcionários
+    createChart('chartTopFuncionarios', {
+        type: 'bar',
+        data: {
+            labels: graficosData.top_funcionarios.labels,
+            datasets: [{
+                label: 'Qtd Consumida',
+                data: graficosData.top_funcionarios.data,
+                backgroundColor: '#af52de',
+                borderRadius: 10,
+                barThickness: 'flex'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, border: { display: false } },
+                y: { grid: { display: false }, border: { display: false } }
+            }
+        }
+    });
+
+    // Handle Resize to update charts
+    grid.on('resizestop', function(event, el) {
+        Object.values(charts).forEach(chart => chart.resize());
+    });
+</script>
+{% endblock %}

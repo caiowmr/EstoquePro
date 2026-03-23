@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center animate-up">
+    <div class="col-lg-6">
+        <div class="mb-5 text-center">
+            <h1 class="display-5 fw-bold mb-1">{{ 'Editar Funcionário' if funcionario else 'Novo Funcionário' }}</h1>
+            <p class="text-muted">Cadastre os colaboradores para registro de movimentações.</p>
+        </div>
+        
+        <div class="bento-item">
+            <form method="POST">
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-muted">NOME COMPLETO</label>
+                    <input type="text" name="nome" class="form-control" value="{{ funcionario.nome if funcionario else '' }}" placeholder="Ex: João da Silva" required>
+                </div>
+                <div class="mb-5">
+                    <label class="form-label small fw-bold text-muted">DEPARTAMENTO</label>
+                    <input type="text" name="departamento" class="form-control" value="{{ funcionario.departamento if funcionario else '' }}" placeholder="Ex: Manutenção">
+                </div>
+                <div class="d-grid gap-3">
+                    <button type="submit" class="btn btn-primary btn-lg py-3">Salvar Funcionário</button>
+                    <a href="{{ url_for('funcionarios.listar') }}" class="btn btn-light btn-lg">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

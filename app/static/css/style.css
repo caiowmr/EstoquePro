@@ -1,0 +1,215 @@
+:root {
+    --apple-bg: #f5f5f7;
+    --apple-nav: rgba(255, 255, 255, 0.72);
+    --pastel-blue: #e3f2fd;
+    --pastel-green: #e8f5e9;
+    --pastel-yellow: #fff9c4;
+    --pastel-red: #ffebee;
+    --text-main: #1d1d1f;
+    --text-muted: #86868b;
+    --accent: #0071e3;
+    --card-shadow: 0 8px 30px rgba(0,0,0,0.04);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--apple-bg);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
+.animate-up { animation: fadeInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+
+/* Desktop-First Layout */
+.max-width-container {
+    max-width: 1800px;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 1400px) {
+    .max-width-container {
+        width: 98%;
+    }
+}
+
+@media (min-width: 2200px) {
+    .max-width-container {
+        max-width: 2500px;
+    }
+}
+
+.navbar {
+    background-color: var(--apple-nav);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    padding: 1rem 0;
+    transition: all 0.3s ease;
+}
+
+.navbar-brand {
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+.nav-link {
+    color: var(--text-main) !important;
+    font-size: 0.85rem;
+    font-weight: 400;
+    padding: 0.5rem 1.5rem !important;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+}
+
+.nav-link:hover {
+    background: rgba(0,0,0,0.03);
+}
+
+.nav-link.active {
+    font-weight: 600;
+    color: var(--accent) !important;
+}
+
+/* Bento Grid Dashboard - GridStack Integration */
+.grid-stack {
+    margin: -12px;
+}
+
+.grid-stack-item-content {
+    background: white;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+    transition: box-shadow 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.02);
+    overflow: hidden; /* Hide scrollbars */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Hide scrollbars for Chrome, Safari and Opera */
+.grid-stack-item-content::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbars for IE, Edge and Firefox */
+.grid-stack-item-content {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.grid-stack-item-content:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+}
+
+.grid-stack-item-content h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text-main);
+}
+
+.chart-container {
+    flex-grow: 1;
+    position: relative;
+    min-height: 0;
+}
+
+/* Specific Bento Stats */
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-bottom: 16px;
+}
+
+/* Login Page Overhaul */
+.login-screen {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f5f5f7 0%, #e8e8ed 100%);
+}
+
+.login-container {
+    width: 100%;
+    max-width: 440px;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(30px);
+    border-radius: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+    border: 1px solid white;
+    text-align: center;
+}
+
+.login-logo {
+    font-size: 3rem;
+    color: var(--accent);
+    margin-bottom: 24px;
+}
+
+/* Form Controls */
+.form-control {
+    border-radius: 12px;
+    border: 1px solid #d2d2d7;
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.form-control:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+}
+
+/* Tables */
+.table-container {
+    background: white;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+}
+
+.table th {
+    border-top: none;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    padding: 16px !important;
+}
+
+.table td {
+    padding: 20px 16px !important;
+    vertical-align: middle;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d2d2d7; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #86868b; }
